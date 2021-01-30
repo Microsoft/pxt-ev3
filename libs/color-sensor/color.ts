@@ -55,11 +55,13 @@ namespace sensors {
     export class ColorSensor extends internal.UartSensor {
         thresholdDetector: sensors.ThresholdDetector;
         calibrating: boolean;
+        private _curr: number;
 
         constructor(port: number) {
             super(port)
             this.thresholdDetector = new sensors.ThresholdDetector(this.id());
             this.calibrating = false;
+            this._curr = 0;
         }
 
         _colorEventValue(value: number) {
@@ -102,17 +104,18 @@ namespace sensors {
                         "yellow",
                         "red",
                         "white",
-                        "brown"][this._query()];
+                        "brown"][this._curr];
                 case ColorSensorMode.AmbientLightIntensity:
                 case ColorSensorMode.ReflectedLightIntensity:
-                    return `${this._query()}%`;
+                    return `${this._curr}%`;
                 default:
-                    return this._query().toString();
+                    return this._curr.toString();
             }
         }
 
         _update(prev: number, curr: number) {
             if (this.calibrating) return; // simply ignore data updates while calibrating
+            this._curr = curr;
             if (this.mode == ColorSensorMode.Color || this.mode == ColorSensorMode.RgbRaw || this.mode == ColorSensorMode.RefRaw)
                 control.raiseEvent(this._id, this._colorEventValue(curr));
             else
@@ -176,7 +179,7 @@ namespace sensors {
         color(): ColorSensorColor {
             this.poke();
             this.setMode(ColorSensorMode.Color)
-            return this.getNumber(NumberFormat.UInt8LE, 0)
+            return this._curr;
         }
 
         /**
@@ -268,7 +271,7 @@ namespace sensors {
                 case LightIntensityMode.ReflectedRaw:
                     return this.reflectedLightRaw();
                 default:
-                    return this.getNumber(NumberFormat.UInt8LE, 0)
+                    return this._curr;
             }
         }
 
@@ -295,7 +298,7 @@ namespace sensors {
         reflectedLightRaw(): number {
             this.poke();
             this.setMode(ColorSensorMode.RefRaw);
-            return this.getNumber(NumberFormat.UInt16LE, 0);
+            return this._curr;
         }
 
         /**

@@ -55,7 +55,7 @@ namespace motors {
         Size = 12
     }
 
-    function init() {
+    export function init() {
         if (pwmMM) return
         pwmMM = control.mmap("/dev/lms_pwm", 0, 0)
         if (!pwmMM) control.fail("no PWM file")

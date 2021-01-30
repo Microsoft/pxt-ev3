@@ -141,6 +141,8 @@ namespace brick {
         const col = 44;
         const lineHeight8 = image.font8.charHeight + 2;
         const h = screen.height;
+        const w = screen.width;
+        const blink = (control.millis() >> 5) % (h - 1);
 
         clearScreen();
 
@@ -180,21 +182,23 @@ namespace brick {
             if (inf)
                 screen.print(inf, x, h - 2 * lineHeight8, 1, inf.length > 4 ? image.font5 : image.font8);
         }
+
+        // alive dot
+        screen.setPixel(w - 1, blink, 1);
+        screen.setPixel(w - 1, blink - 1, 1);
+        screen.setPixel(w - 2, blink - 1, 1);
+        screen.setPixel(w - 2, blink, 1);
     }
 
     export function showBoot() {
         // pulse green, play startup sound, turn off light
         brick.setStatusLight(StatusLight.GreenPulse);
         // We pause for 100ms to give time to read sensor values, so they work in on_start block
-        pause(400)
+        sensors.internal.init();
+        motors.init();
+        pause(800)
         // and we're ready
         brick.setStatusLight(StatusLight.Off);
-        // always show port by default if no UI is set
-        control.runInParallel(function () {
-            // show ports if nothing is has been shown
-            if (screenMode != ScreenMode.None) return;
-            showPorts();
-        })
     }
 
     /**
