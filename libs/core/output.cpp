@@ -1,6 +1,9 @@
 #include "pxt.h"
 #include "ev3const.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 namespace output {
 
 /**
@@ -17,6 +20,7 @@ Buffer createBuffer(int size) {
 namespace pxt {
 
 void target_init() {
+    mkdir(SETTINGSDIR, 0777);
 }
 
 }

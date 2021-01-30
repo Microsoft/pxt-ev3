@@ -24,7 +24,8 @@
         "touch-sensor": "file:../touch-sensor",
         "ultrasonic-sensor": "file:../ultrasonic-sensor",
         "gyro-sensor": "file:../gyro-sensor",
-        "infrared-sensor": "file:../infrared-sensor"
+        "infrared-sensor": "file:../infrared-sensor",
+        "settings": "file:../settings"
     },
     "palette": [
        "#ffffff",
