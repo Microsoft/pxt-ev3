@@ -12,43 +12,6 @@ export function debug() {
         .then(w => w.downloadFileAsync("/tmp/dmesg.txt", v => console.log(pxt.Util.uint8ArrayToString(v))))
 }
 
-// Web Serial API https://wicg.github.io/serial/
-// chromium bug https://bugs.chromium.org/p/chromium/issues/detail?id=884928
-// Under experimental features in Chrome Desktop 77+
-enum ParityType {
-    "none",
-    "even",
-    "odd",
-    "mark",
-    "space"
-}
-declare interface SerialOptions {
-    baudrate?: number;
-    databits?: number;
-    stopbits?: number;
-    parity?: ParityType;
-    buffersize?: number;
-    rtscts?: boolean;
-    xon?: boolean;
-    xoff?: boolean;
-    xany?: boolean;
-}
-type SerialPortInfo = pxt.Map<string>;
-type SerialPortRequestOptions = any;
-declare class SerialPort {
-    open(options?: SerialOptions): Promise<void>;
-    close(): void;
-    readonly readable: any;
-    readonly writable: any;
-    //getInfo(): SerialPortInfo;
-}
-declare interface Serial extends EventTarget {
-    onconnect: any;
-    ondisconnect: any;
-    getPorts(): Promise<SerialPort[]>
-    requestPort(options: SerialPortRequestOptions): Promise<SerialPort>;
-}
-
 class WebSerialPackageIO implements pxt.HF2.PacketIO {
     onData: (v: Uint8Array) => void;
     onError: (e: Error) => void;
@@ -83,22 +46,21 @@ class WebSerialPackageIO implements pxt.HF2.PacketIO {
     }
 
     static isSupported(): boolean {
-        return !!(<any>navigator).serial;
+        return !!navigator.serial;
     }
 
     static portIos: WebSerialPackageIO[] = [];
     static async mkPacketIOAsync(): Promise<pxt.HF2.PacketIO> {
-        const serial = (<any>navigator).serial;
+        const serial = navigator.serial;
         if (serial) {
             try {
-                const requestOptions: SerialPortRequestOptions = {};
-                const port = await serial.requestPort(requestOptions);
+                const port = await serial.requestPort();
 
                 let io = WebSerialPackageIO.portIos.filter(i => i.port == port)[0];
                 if (!io) {
                     const options: SerialOptions = {
-                        baudrate: 460800,
-                        buffersize: 4096
+                        baudRate: 460800,
+                        bufferSize: 4096
                     };
                     io = new WebSerialPackageIO(port, options);
                     WebSerialPackageIO.portIos.push(io);
