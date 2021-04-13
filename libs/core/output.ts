@@ -597,7 +597,7 @@ namespace motors {
         //% help=motors/motor/angle
         angle(): number {
             this.init();
-            return getMotorData(this._port).count;
+            return getMotorData(this._port).count * this.invertedFactor();
         }
 
         /**
